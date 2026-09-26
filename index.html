@@ -28,7 +28,7 @@
 
 
 
-const VERSION = 'v125';
+const VERSION = 'v126';
 const CONFIG = {
   VOLUME: 0.35,
 
@@ -2855,10 +2855,64 @@ function versionRect() { return { x: W - 64, y: H - 30, w: 58, h: 26 }; }
 function resetYesRect() { return { x: W / 2 - 76, y: 372, w: 92, h: 40 }; }
 function resetNoRect()  { return { x: W / 2 + 26, y: 372, w: 50, h: 40 }; }
 
+
+function drawSurround(vw, vh) {
+  if (offX < 0.5 && offY < 0.5) return;
+  
+  ctx.save();
+  const px = offX, py = offY, pw = W * scale, ph = H * scale;
+
+  const g = ctx.createLinearGradient(0, 0, 0, vh);
+  g.addColorStop(0, '#12131c'); g.addColorStop(1, '#06070b');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, vw, vh);
+
+  
+  const glow = ctx.createRadialGradient(vw / 2, vh / 2, ph * 0.18, vw / 2, vh / 2, Math.max(vw, vh) * 0.62);
+  glow.addColorStop(0, 'rgba(255,150,60,0.10)'); glow.addColorStop(1, 'rgba(255,150,60,0)');
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, vw, vh);
+
+  
+  const t = Date.now() / 1000;
+  for (let i = 0; i < 22; i++) {
+    const seed = i * 137.5;
+    const x = ((Math.sin(seed) * 0.5 + 0.5) * 0.96 + 0.02) * vw;
+    if (x > px - 6 && x < px + pw + 6) continue;   
+    const speed = 10 + (i % 5) * 3.2;
+    const y = vh - ((t * speed + seed * 41) % (vh + 60));
+    const tw = 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(t * 2.6 + seed));
+    const sz = (i % 3 === 0) ? 3 : 2;
+    ctx.fillStyle = `rgba(255,${172 + (i * 23) % 60},70,${(tw * 0.34).toFixed(2)})`;
+    ctx.fillRect(Math.round(x) - sz / 2, Math.round(y) - sz / 2, sz, sz);
+  }
+
+  const vig = ctx.createRadialGradient(vw / 2, vh / 2, Math.min(vw, vh) * 0.3, vw / 2, vh / 2, Math.max(vw, vh) * 0.72);
+  vig.addColorStop(0, 'rgba(0,0,0,0)'); vig.addColorStop(1, 'rgba(0,0,0,0.5)');
+  ctx.fillStyle = vig; ctx.fillRect(0, 0, vw, vh);
+
+  
+  if (offX >= 0.5) {
+    const e = Math.max(10, pw * 0.05);
+    let L = ctx.createLinearGradient(px - e, 0, px, 0);
+    L.addColorStop(0, 'rgba(0,0,0,0)'); L.addColorStop(1, 'rgba(0,0,0,0.45)');
+    ctx.fillStyle = L; ctx.fillRect(px - e, 0, e, vh);
+    let R = ctx.createLinearGradient(px + pw + e, 0, px + pw, 0);
+    R.addColorStop(0, 'rgba(0,0,0,0)'); R.addColorStop(1, 'rgba(0,0,0,0.45)');
+    ctx.fillStyle = R; ctx.fillRect(px + pw, 0, e, vh);
+    ctx.fillStyle = 'rgba(255,170,90,0.13)';
+    ctx.fillRect(px - 1, py, 1, ph); ctx.fillRect(px + pw, py, 1, ph);
+  }
+  if (offY >= 0.5) {
+    ctx.fillStyle = 'rgba(255,170,90,0.13)';
+    ctx.fillRect(px, py - 1, pw, 1); ctx.fillRect(px, py + ph, pw, 1);
+  }
+  ctx.restore();
+}
+
 function draw() {
   const vw = window.innerWidth, vh = window.innerHeight;
   ctx.fillStyle = '#07080d';
   ctx.fillRect(0, 0, vw, vh);
+  drawSurround(vw, vh);
 
   ctx.save();
   const sx = shake ? (Math.random() - 0.5) * shake : 0;
