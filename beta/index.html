@@ -28,7 +28,7 @@
 
 
 
-const VERSION = 'v128';
+const VERSION = 'v129';
 const CONFIG = {
   VOLUME: 0.35,
 
@@ -4204,25 +4204,57 @@ function drawButtons() {
 
 function drawTitle() {
   
-  const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, '#14151f'); grad.addColorStop(1, '#08090d');
-  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-
-  const glow = ctx.createRadialGradient(W / 2, 168, 10, W / 2, 168, 260);
-  glow.addColorStop(0, 'rgba(255,150,60,0.16)'); glow.addColorStop(1, 'rgba(255,150,60,0)');
-  ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
-
   
   const t = Date.now() / 1000;
-  for (let i = 0; i < 16; i++) {
-    const seed = i * 137.5;
-    const x = ((Math.sin(seed) * 0.5 + 0.5) * 0.86 + 0.07) * W;
-    const speed = 12 + (i % 5) * 3.4;
-    const y = H - ((t * speed + seed * 41) % (H + 60));
-    const tw = 0.25 + 0.5 * (0.5 + 0.5 * Math.sin(t * 2.6 + seed));
-    const sz = (i % 3 === 0) ? 3 : 2;
-    ctx.fillStyle = `rgba(255,${172 + (i * 23) % 60},70,${(tw * 0.5).toFixed(2)})`;
-    ctx.fillRect(Math.round(x) - sz / 2, Math.round(y) - sz / 2, sz, sz);
+  const HOR = 478;   
+  const sky = ctx.createLinearGradient(0, 0, 0, HOR);
+  sky.addColorStop(0, '#0a0c24'); sky.addColorStop(0.45, '#1c1a48'); sky.addColorStop(0.8, '#43204a'); sky.addColorStop(1, '#6a2a48');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, HOR);
+  
+  for (let i = 0; i < 34; i++) {
+    const sx = ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1 * W;
+    const sy = ((Math.sin(i * 78.233) * 12543.123) % 1 + 1) % 1 * 300;
+    const a2 = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(t * (1.3 + (i % 4) * 0.4) + i));
+    ctx.fillStyle = `rgba(230,230,255,${a2.toFixed(2)})`;
+    ctx.fillRect(Math.round(sx), Math.round(sy), i % 5 === 0 ? 2 : 1, i % 5 === 0 ? 2 : 1);
+  }
+  
+  const mx = W / 2 + 64, my = 138, mr = 62;
+  const mg = ctx.createRadialGradient(mx, my, mr * 0.6, mx, my, mr * 2.4);
+  mg.addColorStop(0, 'rgba(255,236,190,0.30)'); mg.addColorStop(1, 'rgba(255,236,190,0)');
+  ctx.fillStyle = mg; ctx.fillRect(0, 0, W, HOR);
+  ctx.fillStyle = '#fbeec8'; ctx.beginPath(); ctx.arc(mx, my, mr, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(214,196,150,0.45)';
+  for (const [dx, dy, r2] of [[-18, -14, 11], [16, 10, 8], [-6, 24, 6], [26, -22, 5]]) { ctx.beginPath(); ctx.arc(mx + dx, my + dy, r2, 0, Math.PI * 2); ctx.fill(); }
+  
+  for (let i = 0; i < 3; i++) {
+    const hy2 = 250 + i * 70, off = ((t * (6 + i * 3) + i * 120) % (W + 300)) - 150;
+    const mist = ctx.createRadialGradient(off, hy2, 10, off, hy2, 170);
+    mist.addColorStop(0, 'rgba(150,120,200,0.14)'); mist.addColorStop(1, 'rgba(150,120,200,0)');
+    
+    ctx.fillStyle = mist; ctx.fillRect(off - 180, hy2 - 180, 360, 360);
+  }
+  
+  ctx.save(); ctx.imageSmoothingEnabled = false;
+  ctx.filter = 'brightness(0.28) saturate(0.6) hue-rotate(200deg)';
+  const mm = ART.rock_gray_m;
+  if (mm) for (let x = -20; x < W + 20; x += Math.round(mm.width * 1.2)) ctx.drawImage(mm, x, HOR - Math.round(mm.height * 1.4), Math.round(mm.width * 1.5), Math.round(mm.height * 1.4));
+  
+  ctx.filter = 'brightness(0.34) saturate(0.6) hue-rotate(200deg)';
+  const fj = ART.rock_fuji;
+  if (fj) ctx.drawImage(fj, Math.round(W / 2 - fj.width * 0.6), HOR - Math.round(fj.height * 1.2), Math.round(fj.width * 1.2), Math.round(fj.height * 1.2));
+  ctx.filter = 'none'; ctx.restore();
+  
+  const gd = ctx.createLinearGradient(0, HOR, 0, H);
+  gd.addColorStop(0, '#1d1024'); gd.addColorStop(1, '#07060c');
+  ctx.fillStyle = gd; ctx.fillRect(0, HOR, W, H - HOR);
+  
+  for (let i = 0; i < 18; i++) {
+    const seed = i * 97.3, speed = 16 + (i % 5) * 5;
+    const py = ((t * speed + seed * 23) % (H + 40)) - 20;
+    const px = (((Math.sin(seed) * 0.5 + 0.5) * W) + Math.sin(t * 1.2 + seed) * 18 + W) % W;
+    ctx.fillStyle = i % 3 ? 'rgba(255,183,208,0.75)' : 'rgba(255,214,228,0.85)';
+    ctx.fillRect(Math.round(px), Math.round(py), 3, 2); ctx.fillRect(Math.round(px) + 1, Math.round(py) + 2, 2, 1);
   }
 
   const vig = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.72);
@@ -4235,18 +4267,23 @@ function drawTitle() {
   ctx.fillText(VERSION, W - 10, H - 10);
   ctx.textAlign = 'center';
   
-  ctx.fillStyle = '#f4f6fb';
+  
+  ctx.save();
   ctx.font = `bold ${fp(72)}px ui-monospace, Menlo, monospace`;
-  ctx.fillText('ZAN', W / 2 - 10, 172);
+  ctx.lineJoin = 'round'; ctx.lineWidth = 8; ctx.strokeStyle = '#1a0a1e';
+  ctx.shadowColor = 'rgba(255,140,60,0.55)'; ctx.shadowBlur = 20;
+  ctx.strokeText('ZAN', W / 2, 172);
+  ctx.shadowBlur = 0;
+  const lg = ctx.createLinearGradient(0, 118, 0, 176);
+  lg.addColorStop(0, '#fff6dc'); lg.addColorStop(0.5, '#ffd27a'); lg.addColorStop(1, '#ff8a3c');
+  ctx.fillStyle = lg; ctx.fillText('ZAN', W / 2, 172);
+  ctx.restore();
   
-  ctx.fillStyle = 'rgba(200,150,90,0.75)';
-  ctx.font = '20px "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif';
-  ctx.fillText('斬', W / 2 + 96, 172);
   
-  ctx.fillStyle = 'rgba(232,176,74,0.92)';
+  ctx.fillStyle = 'rgba(240,236,255,0.92)';   
   ctx.font = `bold ${fp(15)}px ui-monospace, Menlo, monospace`;
   if ('letterSpacing' in ctx) ctx.letterSpacing = '5px';
-  ctx.fillText('NINJA DOG', W / 2 - 8, 208);
+  ctx.fillText('NINJA DOG', W / 2 + 2, 208);
   if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   if (best > 0) {   
     ctx.fillStyle = '#8a93a8'; ctx.font = `bold ${fp(13)}px ui-monospace, Menlo, monospace`;
@@ -4314,8 +4351,7 @@ function drawTitle() {
       ctx.drawImage(im, Math.round(hx + dx - im.width), ey - im.height, im.width * 2, im.height * 2);
     }
     ctx.globalAlpha = 1;
-    const kt = ART.ic_katana;
-    if (kt) ctx.drawImage(kt, Math.round(hx + 12), Math.round(hy - 64), Math.round(kt.width * 1.7), Math.round(kt.height * 1.7));
+    
     const pl = ART.player;
     if (pl) ctx.drawImage(pl, Math.round(hx - pl.width * SC / 2), Math.round(hy - pl.height * SC / 2), Math.round(pl.width * SC), Math.round(pl.height * SC));
     ctx.restore();
