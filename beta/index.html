@@ -28,7 +28,7 @@
 
 
 
-const VERSION = 'v127';
+const VERSION = 'v128';
 const CONFIG = {
   VOLUME: 0.35,
 
@@ -4242,13 +4242,19 @@ function drawTitle() {
   ctx.fillStyle = 'rgba(200,150,90,0.75)';
   ctx.font = '20px "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif';
   ctx.fillText('斬', W / 2 + 96, 172);
-  if (best > 0) {
+  
+  ctx.fillStyle = 'rgba(232,176,74,0.92)';
+  ctx.font = `bold ${fp(15)}px ui-monospace, Menlo, monospace`;
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '5px';
+  ctx.fillText('NINJA DOG', W / 2 - 8, 208);
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  if (best > 0) {   
     ctx.fillStyle = '#8a93a8'; ctx.font = `bold ${fp(13)}px ui-monospace, Menlo, monospace`;
-    ctx.fillText('▲', W / 2 - 24, 222);
+    ctx.fillText('▲', W / 2 - 24, 238);
     ctx.fillStyle = '#cfd6e6'; ctx.font = `bold ${fp(24)}px ui-monospace, Menlo, monospace`;
-    ctx.fillText(String(best), W / 2 + 12, 226);
+    ctx.fillText(String(best), W / 2 + 12, 242);
     for (let i = 0; i < bestChapter - 1; i++) { const ic = ART[bossArtOf(i + 1)];
-      if (ic) ctx.drawImage(ic, W / 2 - 12 * (bestChapter - 1) + i * 24, 236, 20, 20); }
+      if (ic) ctx.drawImage(ic, W / 2 - 12 * (bestChapter - 1) + i * 24, 252, 20, 20); }
   }
   const r = startRect(), cx = r.x + r.w / 2, cy = r.y + r.h / 2, cr = Math.min(r.w, r.h) / 2;
   const ph = 0.5 + Math.sin(Date.now() / 420) * 0.5;
@@ -4290,13 +4296,37 @@ function drawTitle() {
       ctx.fillText(String(b.floor), bx, yB + 32);
     }
   }
-  drawSprite('player', W / 2, 540, false);
+  
+  {
+    const t = Date.now() / 1000, bob = Math.round(Math.sin(t * 2.2) * 2);
+    
+    const hx = W / 2, hy = 540 + bob, SC = 2.6;
+    ctx.save(); ctx.imageSmoothingEnabled = false;
+    const pool = ctx.createRadialGradient(hx, hy + 38, 0, hx, hy + 38, 90);
+    pool.addColorStop(0, 'rgba(255,170,90,0.30)'); pool.addColorStop(1, 'rgba(255,170,90,0)');
+    ctx.fillStyle = pool; ctx.fillRect(hx - 100, hy - 50, 200, 170);
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.beginPath(); ctx.ellipse(hx, hy + 40 - bob, 34, 6, 0, 0, Math.PI * 2); ctx.fill();
+    for (const [nm, dx, ph] of [['oni', -104, 0], ['kasa', 104, 1.6]]) {
+      const im = ART[nm]; if (!im) continue;
+      const ey = hy + 14 + Math.round(Math.sin(t * 1.7 + ph) * 2);
+      ctx.globalAlpha = 0.6;
+      ctx.drawImage(im, Math.round(hx + dx - im.width), ey - im.height, im.width * 2, im.height * 2);
+    }
+    ctx.globalAlpha = 1;
+    const kt = ART.ic_katana;
+    if (kt) ctx.drawImage(kt, Math.round(hx + 12), Math.round(hy - 64), Math.round(kt.width * 1.7), Math.round(kt.height * 1.7));
+    const pl = ART.player;
+    if (pl) ctx.drawImage(pl, Math.round(hx - pl.width * SC / 2), Math.round(hy - pl.height * SC / 2), Math.round(pl.width * SC), Math.round(pl.height * SC));
+    ctx.restore();
+  }
   
   if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
     ctx.fillStyle = 'rgba(160,168,186,0.55)';
     ctx.font = `bold ${fp(11)}px ui-monospace, Menlo, monospace`;
     ctx.textAlign = 'center';
-    ctx.fillText('WASD MOVE   SPACE ACTION   1-4 SWORD', W / 2, 596);
+    
+    ctx.fillText('WASD MOVE   SPACE ACTION   1-4 SWORD', W / 2, 608);
   }
   
   if (resetAsk) {
