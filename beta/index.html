@@ -28,7 +28,7 @@
 
 
 
-const VERSION = 'v129';
+const VERSION = 'v130';
 const CONFIG = {
   VOLUME: 0.35,
 
@@ -4219,13 +4219,21 @@ function drawTitle() {
     ctx.fillRect(Math.round(sx), Math.round(sy), i % 5 === 0 ? 2 : 1, i % 5 === 0 ? 2 : 1);
   }
   
-  const mx = W / 2 + 64, my = 138, mr = 62;
+  
+  const mx = W / 2, my = 70, mr = 52;
   const mg = ctx.createRadialGradient(mx, my, mr * 0.6, mx, my, mr * 2.4);
   mg.addColorStop(0, 'rgba(255,236,190,0.30)'); mg.addColorStop(1, 'rgba(255,236,190,0)');
   ctx.fillStyle = mg; ctx.fillRect(0, 0, W, HOR);
   ctx.fillStyle = '#fbeec8'; ctx.beginPath(); ctx.arc(mx, my, mr, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(214,196,150,0.45)';
   for (const [dx, dy, r2] of [[-18, -14, 11], [16, 10, 8], [-6, 24, 6], [26, -22, 5]]) { ctx.beginPath(); ctx.arc(mx + dx, my + dy, r2, 0, Math.PI * 2); ctx.fill(); }
+  
+  ctx.save();
+  ctx.font = `900 ${Math.round(mr * 1.25)}px "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Noto Serif CJK JP", serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(58,18,40,0.78)';
+  ctx.fillText('斬', mx + 4, my + 2);
+  ctx.restore();
   
   for (let i = 0; i < 3; i++) {
     const hy2 = 250 + i * 70, off = ((t * (6 + i * 3) + i * 120) % (W + 300)) - 150;
@@ -4283,7 +4291,8 @@ function drawTitle() {
   ctx.fillStyle = 'rgba(240,236,255,0.92)';   
   ctx.font = `bold ${fp(15)}px ui-monospace, Menlo, monospace`;
   if ('letterSpacing' in ctx) ctx.letterSpacing = '5px';
-  ctx.fillText('NINJA DOG', W / 2 + 2, 208);
+  
+  ctx.fillText('NINJA DOG SURVIVOR', W / 2 + 2, 208);
   if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   if (best > 0) {   
     ctx.fillStyle = '#8a93a8'; ctx.font = `bold ${fp(13)}px ui-monospace, Menlo, monospace`;
